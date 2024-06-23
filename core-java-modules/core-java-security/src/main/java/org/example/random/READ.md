@@ -1,0 +1,23 @@
+NativePRNG和NativePRNGBlocking是Java中SecureRandom类的两种不同实现，它们用于生成安全的随机数。以下是关于这两种算法的详细解释：
+
+NativePRNG：
+
+NativePRNG是SecureRandom类的一种实现，它使用本地平台的伪随机数生成器（PRNG）。
+在Solaris、Linux和MacOS等系统上，NativePRNG的行为依赖于sun.security.provider.NativePRNG.generateSeed()方法，它可能会阻塞，因为它使用/dev/random来获取随机数种子。
+使用nextBytes(), nextLong()等方法获取随机数输出时，NativePRNG不会阻塞，因为它们使用/dev/urandom。
+
+NativePRNGBlocking：
+
+NativePRNGBlocking是SecureRandom类的另一种实现，它同样基于本地平台的伪随机数生成器，但在某些操作上更倾向于使用阻塞方式。
+在初始播种时，NativePRNGBlocking使用/dev/random中的20个字节来初始化内部SHA1PRNG实例。
+当调用nextBytes(), nextInt()等方法时，NativePRNGBlocking会提供内部SHA1PRNG实例的输出，并与从/dev/random读取的数据进行XOR操作。
+调用getSeed()时，NativePRNGBlocking提供从/dev/random读取的数据。
+由于/dev/random在熵池不足时可能会阻塞，因此NativePRNGBlocking在系统收集更多熵时也可能遇到阻塞问题。
+
+总结：
+
+NativePRNG和NativePRNGBlocking都是基于本地平台的伪随机数生成器，但它们在处理阻塞和随机数来源方面有所不同。
+NativePRNG在大多数情况下使用/dev/urandom来获取随机数，因此通常不会阻塞。
+NativePRNGBlocking在初始播种和某些随机数生成操作上更倾向于使用/dev/random，这可能导致阻塞，但可能提供更安全的随机数。
+
+在选择使用哪种算法时，需要权衡性能和安全性的需求。如果系统对性能要求较高，并且可以接受稍微降低的安全性，则可以选择NativePRNG。如果系统对安全性有更高的要求，并且可以接受可能的阻塞，则可以选择NativePRNGBlocking。
